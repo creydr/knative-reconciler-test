@@ -126,6 +126,9 @@ func (o *Forwarder) ServeHTTP(writer http.ResponseWriter, request *http.Request)
 	requestCtx, span := trace.StartSpan(request.Context(), "eventshub-forwarder")
 	defer span.End()
 
+	// clone request before body is read
+	req := request.Clone(requestCtx)
+
 	m := cloudeventshttp.NewMessageFromHttpRequest(request)
 	defer m.Finish(nil)
 
@@ -161,7 +164,6 @@ func (o *Forwarder) ServeHTTP(writer http.ResponseWriter, request *http.Request)
 		logging.FromContext(o.ctx).Fatalw("Error while venting the received event", zap.Error(err))
 	}
 
-	req := request.Clone(requestCtx)
 	// It is an error to set this field in an HTTP client request.
 	req.RequestURI = ""
 
