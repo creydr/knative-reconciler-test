@@ -43,6 +43,8 @@ import (
 	"knative.dev/reconciler-test/pkg/resources/service"
 	"knative.dev/reconciler-test/pkg/resources/serviceaccount"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+
 	authv1 "k8s.io/api/authentication/v1"
 )
 
@@ -218,7 +220,7 @@ func WithTLS(t feature.T) environment.EnvOpts {
 
 		return environment.WithPostInit(ctx, func(ctx context.Context, env environment.Environment) (context.Context, error) {
 
-			if _, err := manifest.InstallYamlFS(ctx, caTLSCertificates, nil); err != nil {
+			if _, err := manifest.InstallYamlFS(ctx, caTLSCertificates, nil); err != nil && !apierrors.IsAlreadyExists(err) {
 				return ctx, fmt.Errorf("failed to install CA certificates and issuer: %w", err)
 			}
 

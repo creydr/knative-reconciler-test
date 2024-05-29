@@ -90,7 +90,7 @@ func (f *YamlManifest) Apply(spec *unstructured.Unstructured) error {
 		f.log.Info("Creating type ", spec.GroupVersionKind(), " name ", spec.GetName())
 		gvr, _ := meta.UnsafeGuessKindToResource(spec.GroupVersionKind())
 		if _, err := f.client.Resource(gvr).Namespace(spec.GetNamespace()).Create(context.Background(), spec, v1.CreateOptions{}); err != nil {
-			return fmt.Errorf("failed to create resource %v - Resource:\n%s", err, toYaml(spec))
+			return fmt.Errorf("failed to create resource: %w - Resource:\n%s", err, toYaml(spec))
 		}
 	} else {
 		// Update existing one
@@ -99,7 +99,7 @@ func (f *YamlManifest) Apply(spec *unstructured.Unstructured) error {
 
 			gvr, _ := meta.UnsafeGuessKindToResource(spec.GroupVersionKind())
 			if _, err = f.client.Resource(gvr).Namespace(current.GetNamespace()).Update(context.Background(), current, v1.UpdateOptions{}); err != nil {
-				return fmt.Errorf("failed to update resource %v - Resource:\n%s", err, toYaml(spec))
+				return fmt.Errorf("failed to update resource: %w - Resource:\n%s", err, toYaml(spec))
 			}
 		}
 	}
